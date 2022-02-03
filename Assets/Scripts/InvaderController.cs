@@ -21,7 +21,7 @@ public class InvaderController : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collider) {
         if (collider.gameObject.layer == LayerMask.NameToLayer("PlayerProjectile")) {
             life -= player.GetComponent<PlayerController>().damage;
-            if (life < 0) {
+            if (life <= 0) {
                 invaderDestroyed.Invoke();
                 Destroy(this.gameObject);
             }

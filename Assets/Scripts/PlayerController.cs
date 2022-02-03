@@ -3,13 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour {    
     public ProjectileController projectilePrefab;
     private InvaderController invaderController;
+    public LeftButtonController leftButtonController;
+    public RightButtonController rightButtonController;
 
     public Text lifeText;
     public Text scoreText;
+    public Button moveLeftButton;
+    public Button moveRightButton;
+    public Button shootButton;
 
     public float movementSpeed = 3f;
 
@@ -21,18 +28,38 @@ public class PlayerController : MonoBehaviour {
     private int highscore = 0;
 
     private bool alreadyShot = false;
+    private bool shouldShoot = false;
 
     void Start() {
         life = PlayerPrefs.GetInt("life");
         difficulty = PlayerPrefs.GetInt("difficulty");
         score = PlayerPrefs.GetInt("score");
         highscore = PlayerPrefs.GetInt("highscore");
+
+        if (Application.platform == RuntimePlatform.Android) {
+            moveLeftButton.gameObject.SetActive(true);
+            moveRightButton.gameObject.SetActive(true);
+            shootButton.gameObject.SetActive(true);
+            shootButton.onClick.AddListener(SetShootBool);
+        } else {
+            moveLeftButton.gameObject.SetActive(false);
+            moveRightButton.gameObject.SetActive(false);
+            shootButton.gameObject.SetActive(false);
+        }
+
+        
     }
 
     void Update() {
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && transform.position.x > -8.4f) { MoveLeft(); }
-        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && transform.position.x < 8.4f) { MoveRight(); }
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space)) { Shoot(); }
+        if (Application.platform == RuntimePlatform.Android) {
+            if (leftButtonController.buttonPressed && transform.position.x > -7.5f) { MoveLeft(); }
+            if (rightButtonController.buttonPressed && transform.position.x < 7.5f) { MoveRight(); }
+            if (shouldShoot) { Shoot(); }
+        } else {
+            if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && transform.position.x > -7.5f) { MoveLeft(); }
+            if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && transform.position.x < 7.5f) { MoveRight(); }
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space)) { Shoot(); }
+        }
     }
 
     void MoveLeft() { transform.position = new Vector3(transform.position.x - movementSpeed * Time.deltaTime, transform.position.y, 0f); }
@@ -43,6 +70,15 @@ public class PlayerController : MonoBehaviour {
             spawnedProjectile.destroyed += ProjectileDestroyed;
             alreadyShot = true;
         }        
+    }
+
+    void SetShootBool() {
+        if (!shouldShoot) {
+            shouldShoot = true;
+        } else if (shouldShoot) {
+            shouldShoot = false;
+        }
+        
     }
 
     void ProjectileDestroyed() { alreadyShot = false; }
@@ -68,7 +104,7 @@ public class PlayerController : MonoBehaviour {
             } else {
                 PlayerPrefs.SetInt("highscore_changed", 0);
             }
-            SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
+            SceneManager.LoadScene("GameOverScene", LoadSceneMode.Single);
         }
     }
 

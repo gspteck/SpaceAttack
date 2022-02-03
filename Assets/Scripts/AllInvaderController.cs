@@ -55,10 +55,13 @@ public class AllInvaderController : MonoBehaviour {
             int difficulty = PlayerPrefs.GetInt("difficulty");
             difficulty += 1;
             PlayerPrefs.SetInt("difficulty", difficulty);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            Awake();
         }
         if (transform.position.y < player.transform.position.y - 3) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            int playerLife = playerController.life - (transform.childCount * 1);
+            playerController.lifeText.text = "HP: " + playerLife.ToString();
+            PlayerPrefs.SetInt("life", playerLife);
+            Awake();
         }
     }
 
@@ -76,6 +79,7 @@ public class AllInvaderController : MonoBehaviour {
                 invader.transform.localPosition = position;
             }
         }
+        transform.position = new Vector3(0f, 1.5f, 0f);
     }
 
     void Shoot() {
