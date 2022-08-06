@@ -58,6 +58,10 @@ public class AllInvaderController : MonoBehaviour {
             Awake();
         }
         if (transform.position.y < player.transform.position.y - 3) {
+            int difficulty = PlayerPrefs.GetInt("difficulty");
+            difficulty += 1;
+            PlayerPrefs.SetInt("difficulty", difficulty);
+            
             int playerLife = playerController.life - (transform.childCount * 1);
             playerController.lifeText.text = "HP: " + playerLife.ToString();
             PlayerPrefs.SetInt("life", playerLife);

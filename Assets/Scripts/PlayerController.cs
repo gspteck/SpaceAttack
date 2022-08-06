@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour {
     public Button moveLeftButton;
     public Button moveRightButton;
     public Button shootButton;
+    public SpriteRenderer spriteRenderer;
+    public Sprite playerDamagedSprite;
 
     public float movementSpeed = 3f;
 
@@ -85,10 +87,12 @@ public class PlayerController : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D collider) {
         if (collider.gameObject.layer == LayerMask.NameToLayer("EnemyProjectile")) {
+            life = PlayerPrefs.GetInt("life");
             life -= 1 * difficulty;
             lifeText.text = "HP: " + life.ToString();
             PlayerPrefs.SetInt("life", life);
         } else if (collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
+            life = PlayerPrefs.GetInt("life");
             life -= 5 * difficulty;
             lifeText.text = "HP: " + life.ToString();
             PlayerPrefs.SetInt("life", life);
@@ -105,6 +109,8 @@ public class PlayerController : MonoBehaviour {
                 PlayerPrefs.SetInt("highscore_changed", 0);
             }
             SceneManager.LoadScene("GameOverScene", LoadSceneMode.Single);
+        } else if (life <= 50) {
+            spriteRenderer.sprite = playerDamagedSprite;
         }
     }
 
